@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rclone-config
+stringData:
+  rclone.conf: |
+    [logs]
+    type = webdav
+    url =
+    user =
+    vendor = other

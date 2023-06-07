@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-configmap
+data:
+  logstash.yml: |
+    http.host: "0.0.0.0"
+    path.config: /usr/share/logstash/pipeline
+  logstash.conf: |
+    input {
+      beats {
+          client_inactivity_timeout => 1200 
+          port => "5044"
+          ssl  => false
+      }
+    }
+    output {
+      elasticsearch {
+          hosts => [ "elasticsearch:9200" ]
+      }
+    }
+
+
