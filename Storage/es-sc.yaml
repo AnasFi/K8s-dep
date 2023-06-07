@@ -2,11 +2,7 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: elastic-sc
-provisioner: kubernetes.io/gce-pd
-volumeBindingMode: Immediate
+provisioner: kubernetes.io/no-provisioneri
+volumeBindingMode: WaitForFirstConsumer
 allowVolumeExpansion: true
 reclaimPolicy: Delete
-parameters:
-  type: pd-standard
-  fstype: ext4
-  replication-type: none
