@@ -7,5 +7,5 @@ stringData:
     [logs]
     type = webdav
     url =
-    user =
+    user = 
     vendor = other

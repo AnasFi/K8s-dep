@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: orderjob
+  name: orderjob
+spec:
+  containers:
+  - image: anasfi/ordersjob:v1
+    name: ordersjob
+    command: [ "/bin/sh", "-c", "--" ]
+    args: [ "while true; node OrdersJob; do sleep 1h; done;" ]
+    env: 
+    - name: CLIENT_ID
+      valueFrom:
+        secretKeyRef: 
+          name: ocapicreds
+          key: client_id
+    - name: CLIENT_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: ocapicreds
+          key: client_password
+    - name: COMMERCE_CLOUD_HOST
+      valueFrom:
+        secretKeyRef:
+          name: ocapicreds
+          key: commerce_cloud_host
+    - name: KAFKA_HOST
+      value: kafka-service:9092
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}

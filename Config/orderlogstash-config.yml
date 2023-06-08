@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: orderstash-configmap
+data:
+  logstash.yml: |
+    http.host: "0.0.0.0"
+    path.config: /usr/share/logstash/pipeline
+  logstash.conf: |
+    input {
+      kafka {
+          bootstrap_servers => "kafka-service:9092"
+          topics => ["orders-topic"]
+      }
+    }
+
+    filter {
+      json {
+        source => "message"
+      }
+      ruby {
+        code => '
+            def removeBigThings(object, name, event)
+                if object
+                    if object.kind_of?(Hash) and object != {}
+                        object.each { |k, v| removeBigThings(v, "#{name}[#{k}]", event) }
+                    elsif object.kind_of?(Array) and object != []
+                        object.each_index { |i|
+                            removeBigThings(object[i], "#{name}[#{i}]", event)
+                        }
+                    else
+                        lastElement = name.gsub(/^.*\[/, "").gsub(/\]$/, "")
+                        if lastElement == "_type"
+                            event.remove(name)
+                        end
+                    end
+                end
+            end
+
+            event.to_hash.each { |k, v|
+                removeBigThings(v, "[#{k}]", event)
+            }
+        '
+      }
+    } 
+
+    output {
+      elasticsearch {
+          index => "orders-topic"
+          hosts => [ "elasticsearch:9200" ]
+      }
+    }
+
+
